@@ -3502,7 +3502,13 @@
       font-size: 22px;
       padding: 2px 6px;
     }
-  </style>
+  
+    /* ── 약 이름 자동완성 ── */
+    .suggest-item:hover { background: #f0faf6; }
+    .suggest-item:active { background: #E1F5EE; }
+    #f-name-suggest { font-family: system-ui, -apple-system, sans-serif; }
+    #f-name-suggest .suggest-item:last-child { border-bottom: none !important; }
+</style>
 
   <div class="app-root">
     <div class="shell main-hdr-hidden" id="shell">
@@ -4164,7 +4170,15 @@
           <h3 id="pop-edit-title">새 알람 추가</h3><button class="popup-close" data-close="pop-edit">×</button>
         </div>
         <div class="popup-body">
-          <div class="field"><label>약 이름</label><input type="text" id="f-name" placeholder="예: 타이레놀 500mg" /></div>
+          <div class="field"><label>약 이름</label>
+            <div style="position:relative;">
+              <input type="text" id="f-name" placeholder="예: 타이레놀 500mg" autocomplete="off" style="padding-right:48px;" />
+              <div id="f-name-preview" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:6px;overflow:hidden;border:1px solid #e0e0e0;background:#f5f5f5;">
+                <img id="f-name-preview-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;" />
+              </div>
+            </div>
+            <div id="f-name-suggest" style="display:none;position:absolute;z-index:200;left:0;right:0;background:#fff;border:1px solid #e0e0e0;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);max-height:160px;overflow-y:auto;margin-top:2px;"></div>
+          </div>
           <div class="field"><label>복용 요일</label>
             <div class="day-grid" id="f-day-grid">
               <button type="button" class="day-chip" data-d="0">일</button><button type="button" class="day-chip on"
@@ -4563,7 +4577,7 @@
 
   <script>
     (function () {
-      var TODAY = new Date(2026, 3, 4);
+      var TODAY = new Date(); /* 실제 현재 날짜 */
       var isLarge = false;
       var HDR = { main: ['약풀', '의약품 정보를 쉽고 안전하게'], chatbot: ['챗봇', '궁금한 점을 물어보세요'], map: ['지도', '근처 약국 찾기'], alarm: ['알람', '복용 일정 관리'], mypage: ['내 정보', '내 건강 관리'] };
 
@@ -4676,9 +4690,9 @@
 
       /* ── ALARM ── */
       var alarms = [
-        { id: 1, name: '타이레놀 500mg', days: [1, 2, 3, 4, 5], times: ['오전 8:00', '오후 12:00', '오후 6:00'], meal: '식후', gap: '30분 후', persons: [0], memo: '', color: '#1D9E75', enabled: true },
-        { id: 2, name: '가스활명수큐액', days: [1, 2, 3, 4, 5], times: ['오전 7:30', '오후 12:30'], meal: '식사 직전', gap: '즉시', persons: [0], memo: '', color: '#378ADD', enabled: true },
-        { id: 3, name: '아스피린프로텍트', days: [0, 1, 2, 3, 4, 5, 6], times: ['오전 9:00'], meal: '식후', gap: '즉시', persons: [0, 1], memo: '혈압약 주의', color: '#BA7517', enabled: false }
+        { id: 1, name: '타이레놀 500mg', days: [1, 2, 3, 4, 5], times: ['오전 8:00', '오후 12:00', '오후 6:00'], meal: '식후', gap: '30분 후', persons: [0], memo: '', color: '#1D9E75', enabled: true, imageUrl: '' },
+        { id: 2, name: '가스활명수큐액', days: [1, 2, 3, 4, 5], times: ['오전 7:30', '오후 12:30'], meal: '식사 직전', gap: '즉시', persons: [0], memo: '', color: '#378ADD', enabled: true, imageUrl: '' },
+        { id: 3, name: '아스피린프로텍트', days: [0, 1, 2, 3, 4, 5, 6], times: ['오전 9:00'], meal: '식후', gap: '즉시', persons: [0, 1], memo: '혈압약 주의', color: '#BA7517', enabled: false, imageUrl: '' }
       ];
       var nextId = 4, colorIdx = 0, editingId = null, doneMap = {};
       var COLORS = ['#1D9E75', '#378ADD', '#BA7517', '#7F77DD', '#E24B4A', '#639922'];
@@ -4738,14 +4752,23 @@
           /* 알약 실물 사진 영역 — 색상 기반 pill 일러스트 */
           var isLg = document.getElementById('shell').classList.contains('large');
           var pSize = isLg ? '38px' : '46px'; var pR = isLg ? '8px' : '10px';
-          var pillBox = '<div style="width:' + pSize + ';height:' + pSize + ';border-radius:' + pR + ';background:' + a.color + '18;border:1px solid ' + a.color + '33;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;gap:1px;">'
-            + '<svg width="24" height="16" viewBox="0 0 30 20" fill="none">'
-            + '<ellipse cx="15" cy="10" rx="13" ry="7" fill="' + a.color + '" opacity="0.22"/>'
-            + '<ellipse cx="15" cy="10" rx="9" ry="4.5" fill="' + a.color + '" opacity="0.45"/>'
-            + '<ellipse cx="15" cy="10" rx="5" ry="2.5" fill="' + a.color + '"/>'
-            + '<line x1="15" y1="3.5" x2="15" y2="16.5" stroke="' + a.color + '" stroke-width="1" opacity="0.35"/>'
-            + '</svg>'
-            + '<span style="font-size:8px;color:' + a.color + ';opacity:0.7;">실물사진</span>'
+          var pillInner;
+          if (a.imageUrl) {
+            pillInner = '<img src="' + a.imageUrl + '" alt="' + a.name + '" '
+              + 'style="width:100%;height:100%;object-fit:cover;border-radius:' + pR + ';" '
+              + 'onerror="this.parentElement.innerHTML=this.parentElement.getAttribute(\'data-fallback\')">';
+          } else {
+            pillInner = '<svg width="24" height="16" viewBox="0 0 30 20" fill="none">'
+              + '<ellipse cx="15" cy="10" rx="13" ry="7" fill="' + a.color + '" opacity="0.22"/>'
+              + '<ellipse cx="15" cy="10" rx="9" ry="4.5" fill="' + a.color + '" opacity="0.45"/>'
+              + '<ellipse cx="15" cy="10" rx="5" ry="2.5" fill="' + a.color + '"/>'
+              + '<line x1="15" y1="3.5" x2="15" y2="16.5" stroke="' + a.color + '" stroke-width="1" opacity="0.35"/>'
+              + '</svg>'
+              + '<span style="font-size:8px;color:' + a.color + ';opacity:0.7;">' + (a.imageUrl === undefined ? '실물사진' : '이미지없음') + '</span>';
+          }
+          var svgFallback = '<svg width="24" height="16" viewBox="0 0 30 20" fill="none"><ellipse cx="15" cy="10" rx="13" ry="7" fill="' + a.color + '" opacity="0.22"/><ellipse cx="15" cy="10" rx="9" ry="4.5" fill="' + a.color + '" opacity="0.45"/><ellipse cx="15" cy="10" rx="5" ry="2.5" fill="' + a.color + '"/></svg><span style="font-size:8px;color:' + a.color + ';opacity:0.7;">이미지없음</span>';
+          var pillBox = '<div style="width:' + pSize + ';height:' + pSize + ';border-radius:' + pR + ';background:' + a.color + '18;border:1px solid ' + a.color + '33;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;gap:1px;overflow:hidden;" data-fallback="' + svgFallback.replace(/"/g, '&quot;') + '">'
+            + pillInner
             + '</div>';
           card.innerHTML =
             '<div class="ac-head">'
@@ -4781,6 +4804,20 @@
         document.getElementById('f-delete').style.display = isNew ? 'none' : 'block';
         var a = isNew ? null : alarms.find(function (x) { return x.id === id; });
         document.getElementById('f-name').value = a ? a.name : '';
+        /* 이미지 미리보기 초기화 */
+        var prev = document.getElementById('f-name-preview');
+        var prevImg = document.getElementById('f-name-preview-img');
+        if (a && a.imageUrl) {
+          prevImg.src = a.imageUrl;
+          prev.style.display = 'block';
+        } else {
+          prevImg.src = '';
+          prev.style.display = 'none';
+        }
+        var sug = document.getElementById('f-name-suggest');
+        if (sug) sug.style.display = 'none';
+        /* 현재 선택된 이미지URL 임시 저장 */
+        window._pendingImageUrl = a ? (a.imageUrl || '') : '';
         document.getElementById('f-memo').value = a ? a.memo : '';
         document.querySelectorAll('#f-day-grid .day-chip').forEach(function (c) { var d = c.getAttribute('data-d'); if (d === 'all') { c.classList.remove('on'); return; } c.classList.toggle('on', a ? a.days.indexOf(parseInt(d)) >= 0 : (parseInt(d) >= 1 && parseInt(d) <= 5)); });
         document.getElementById('f-time-chips').innerHTML = '';
@@ -4790,6 +4827,57 @@
         document.querySelector('#pop-edit .popup-body').scrollTop = 0;
         openPopup('pop-edit');
       }
+      /* ── 약 이름 자동완성 + 이미지 미리보기 ── */
+      var _suggestTimer = null;
+      var _selectedImageUrl = '';
+      document.getElementById('f-name').addEventListener('input', function () {
+        var q = this.value.trim();
+        var sug = document.getElementById('f-name-suggest');
+        var prev = document.getElementById('f-name-preview');
+        var prevImg = document.getElementById('f-name-preview-img');
+        /* 3자 미만이면 닫기 */
+        if (q.length < 2) { sug.style.display = 'none'; prev.style.display = 'none'; _selectedImageUrl = ''; window._pendingImageUrl = ''; return; }
+        clearTimeout(_suggestTimer);
+        _suggestTimer = setTimeout(function () {
+          fetch(API_BASE_URL + '/api/medicine-search?q=' + encodeURIComponent(q) + '&limit=8')
+            .then(function (r) { return r.ok ? r.json() : []; })
+            .then(function (list) {
+              if (!list || !list.length) { sug.style.display = 'none'; return; }
+              sug.innerHTML = list.map(function (m) {
+                var imgTag = m.image_url
+                  ? '<img src="' + m.image_url + '" style="width:32px;height:32px;object-fit:cover;border-radius:5px;flex-shrink:0;" onerror="this.style.display=\"none\"">'
+                  : '<div style="width:32px;height:32px;border-radius:5px;background:#f0f0f0;flex-shrink:0;"></div>';
+                return '<div class="suggest-item" data-name="' + m.item_name.replace(/"/g,'&quot;') + '" data-img="' + (m.image_url || '').replace(/"/g,'&quot;') + '" '
+                  + 'style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:1px solid #f0f0f0;">'
+                  + imgTag
+                  + '<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:500;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + m.item_name + '</div></div>'
+                  + '</div>';
+              }).join('');
+              sug.style.display = 'block';
+              sug.querySelectorAll('.suggest-item').forEach(function (item) {
+                item.addEventListener('click', function () {
+                  var name = item.getAttribute('data-name');
+                  var img = item.getAttribute('data-img');
+                  document.getElementById('f-name').value = name;
+                  window._pendingImageUrl = img;
+                  _selectedImageUrl = img;
+                  if (img) { prevImg.src = img; prev.style.display = 'block'; }
+                  else { prev.style.display = 'none'; }
+                  sug.style.display = 'none';
+                });
+              });
+            })
+            .catch(function () { sug.style.display = 'none'; });
+        }, 300);
+      });
+      /* 포커스 아웃 시 닫기 */
+      document.getElementById('f-name').addEventListener('blur', function () {
+        setTimeout(function () {
+          var sug = document.getElementById('f-name-suggest');
+          if (sug) sug.style.display = 'none';
+        }, 200);
+      });
+
       document.getElementById('f-day-grid').addEventListener('click', function (e) { var btn = e.target.closest('.day-chip'); if (!btn) return; if (btn.getAttribute('data-d') === 'all') { var chips = document.querySelectorAll('#f-day-grid .day-chip:not([data-d="all"])'); var allOn = Array.from(chips).every(function (c) { return c.classList.contains('on'); }); chips.forEach(function (c) { c.classList.toggle('on', !allOn); }); } else btn.classList.toggle('on'); });
       document.getElementById('f-seg-meal').addEventListener('click', function (e) { var b = e.target.closest('.seg-btn'); if (!b) return; document.querySelectorAll('#f-seg-meal .seg-btn').forEach(function (x) { x.classList.remove('on'); }); b.classList.add('on'); });
       document.getElementById('f-seg-gap').addEventListener('click', function (e) { var b = e.target.closest('.seg-btn'); if (!b) return; document.querySelectorAll('#f-seg-gap .seg-btn').forEach(function (x) { x.classList.remove('on'); }); b.classList.add('on'); });
@@ -4807,9 +4895,30 @@
         var gap = document.querySelector('#f-seg-gap .seg-btn.on').getAttribute('data-v');
         var persons = []; document.querySelectorAll('#f-persons .person-row.on').forEach(function (r) { persons.push(parseInt(r.getAttribute('data-pid'))); });
         var memo = document.getElementById('f-memo').value.trim();
-        if (editingId !== null) { var a = alarms.find(function (x) { return x.id === editingId; }); if (a) { a.name = name; a.days = days; a.times = times; a.meal = meal; a.gap = gap; a.persons = persons; a.memo = memo; } showToast('알람이 수정되었습니다'); }
-        else { alarms.push({ id: nextId++, name: name, days: days, times: times, meal: meal, gap: gap, persons: persons, memo: memo, color: COLORS[colorIdx++ % COLORS.length], enabled: true }); showToast('알람이 저장되었습니다'); }
-        closePopup('pop-edit'); renderAlarmCalendar(); renderAlarmList(); updateAlarmSummary(); updateMypageStats();
+        /* 약 이름으로 DB에서 이미지 URL 조회 후 저장 */
+        function saveAlarmWithImage(imgUrl) {
+          if (editingId !== null) {
+            var a = alarms.find(function (x) { return x.id === editingId; });
+            if (a) { a.name = name; a.days = days; a.times = times; a.meal = meal; a.gap = gap; a.persons = persons; a.memo = memo; a.imageUrl = imgUrl; }
+            showToast('알람이 수정되었습니다');
+          } else {
+            alarms.push({ id: nextId++, name: name, days: days, times: times, meal: meal, gap: gap, persons: persons, memo: memo, color: COLORS[colorIdx++ % COLORS.length], enabled: true, imageUrl: imgUrl });
+            showToast('알람이 저장되었습니다');
+          }
+          closePopup('pop-edit'); renderAlarmCalendar(); renderAlarmList(); updateAlarmSummary(); updateMypageStats();
+          renderTodayDoseBanner();
+        }
+        /* 자동완성으로 이미지가 이미 선택됐으면 바로 저장, 아니면 API 조회 */
+        var preselectedImg = (window._pendingImageUrl !== undefined && window._pendingImageUrl !== null) ? window._pendingImageUrl : null;
+        if (preselectedImg !== null && preselectedImg !== '') {
+          saveAlarmWithImage(preselectedImg);
+          window._pendingImageUrl = '';
+        } else {
+          fetch(API_BASE_URL + '/api/medicine-image?name=' + encodeURIComponent(name))
+            .then(function(r){ return r.ok ? r.json() : null; })
+            .then(function(data){ saveAlarmWithImage(data && data.image_url ? data.image_url : ''); })
+            .catch(function(){ saveAlarmWithImage(''); });
+        }
       });
       document.getElementById('f-delete').addEventListener('click', function () {
         if (editingId === null) return;
@@ -4830,12 +4939,12 @@
           return;
         }
         list.innerHTML = al.map(function (a) {
-          var pillSvg = '<svg width="26" height="18" viewBox="0 0 26 18" fill="none">'
-            + '<ellipse cx="13" cy="9" rx="11" ry="6" fill="' + a.color + '" opacity="0.2"/>'
-            + '<ellipse cx="13" cy="9" rx="7" ry="4" fill="' + a.color + '" opacity="0.45"/>'
-            + '<ellipse cx="13" cy="9" rx="3.5" ry="2" fill="' + a.color + '"/>'
-            + '<line x1="13" y1="3.5" x2="13" y2="14.5" stroke="' + a.color + '" stroke-width="0.8" opacity="0.4"/>'
-            + '</svg>';
+          var pillSvg;
+          if (a.imageUrl) {
+            pillSvg = '<img src="' + a.imageUrl + '" alt="' + a.name + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.style.display=\"none\"">';
+          } else {
+            pillSvg = '<svg width="26" height="18" viewBox="0 0 26 18" fill="none">'            + '<ellipse cx="13" cy="9" rx="11" ry="6" fill="' + a.color + '" opacity="0.2"/>'            + '<ellipse cx="13" cy="9" rx="7" ry="4" fill="' + a.color + '" opacity="0.45"/>'            + '<ellipse cx="13" cy="9" rx="3.5" ry="2" fill="' + a.color + '"/>'            + '<line x1="13" y1="3.5" x2="13" y2="14.5" stroke="' + a.color + '" stroke-width="0.8" opacity="0.4"/>'            + '</svg>';
+          }
           return '<div style="display:flex;align-items:center;gap:10px;">'
             + '<div style="width:40px;height:40px;border-radius:9px;background:' + a.color + '12;border:1px solid ' + a.color + '30;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + pillSvg + '</div>'
             + '<div style="flex:1;">'

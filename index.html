@@ -3508,11 +3508,6 @@
     .suggest-item:active { background: #E1F5EE; }
     #f-name-suggest { font-family: system-ui, -apple-system, sans-serif; }
     #f-name-suggest .suggest-item:last-child { border-bottom: none !important; }
-
-    /* ── 약 이미지 카드 ── */
-    .med-img-card { border-radius: 12px; overflow: hidden; }
-    .med-img-card img { transition: opacity 0.2s; }
-    .bubble.bot { max-width: 85%; }
 </style>
 
   <div class="app-root">
@@ -5325,60 +5320,7 @@
       function cbScrollBot() { var ca = document.getElementById('chat-area'); if (ca) ca.scrollTop = ca.scrollHeight; }
       function cbAddUserMsg(text) { var ca = document.getElementById('chat-area'); var row = document.createElement('div'); row.className = 'msg-row user'; row.innerHTML = '<div class="bubble user"><p>' + cbEsc(text) + '</p></div>'; ca.appendChild(row); cbScrollBot(); }
       function cbAddImgMsg(src) { var ca = document.getElementById('chat-area'); var row = document.createElement('div'); row.className = 'msg-row user'; row.innerHTML = '<div class="img-bbl" style="border-radius:16px 16px 4px 16px;"><img src="' + src + '" alt="약봉지 이미지"/><div class="img-bbl-cap">약봉지 사진</div></div>'; ca.appendChild(row); cbScrollBot(); }
-      function cbAddBotMsg(html) { var ca = document.getElementById('chat-area'); var row = document.createElement('div'); row.className = 'msg-row'; row.innerHTML = cbBotAv() + '<div class=\"bubble bot\">' + html + '</div>'; ca.appendChild(row); cbScrollBot(); }
-
-      /* 약 이미지 + 설명 카드 메시지 */
-      function cbAddMedicineCard(name, imageUrl, descHtml) {
-        var ca = document.getElementById('chat-area');
-        var row = document.createElement('div'); row.className = 'msg-row';
-        var imgSection = '';
-        if (imageUrl) {
-          imgSection = '<div style="margin-bottom:10px;border-radius:10px;overflow:hidden;border:1px solid rgba(0,0,0,0.08);background:#f5f5f5;">'
-            + '<img src="' + imageUrl + '" alt="' + cbEsc(name) + '" '
-            + 'style="width:100%;max-height:140px;object-fit:contain;display:block;padding:6px;" '
-            + 'onerror="this.parentElement.style.display=\"none\"">'
-            + '</div>';
-        }
-        var card = '<div class="bubble bot" style="padding:0;overflow:hidden;max-width:88%;">'
-          + '<div style="padding:12px 13px 10px;">'
-          + '<div style="font-size:13px;font-weight:500;color:#085041;margin-bottom:8px;display:flex;align-items:center;gap:6px;">'
-          + '<span style="width:8px;height:8px;border-radius:50%;background:#1D9E75;flex-shrink:0;display:inline-block;"></span>'
-          + cbEsc(name) + '</div>'
-          + imgSection
-          + '<div style="font-size:13px;color:#333;line-height:1.6;">' + descHtml + '</div>'
-          + '</div></div>';
-        row.innerHTML = cbBotAv() + card;
-        ca.appendChild(row); cbScrollBot();
-      }
-
-      /* DB에서 이미지 URL 조회 */
-      function cbFetchMedicineImage(name, callback) {
-        fetch(API_BASE_URL + '/api/medicine-image?name=' + encodeURIComponent(name))
-          .then(function(r){ return r.ok ? r.json() : null; })
-          .then(function(data){ callback(data && data.image_url ? data.image_url : ''); })
-          .catch(function(){ callback(''); });
-      }
-
-      /* 텍스트에서 약 이름 추출 */
-      function cbExtractMedicineNames(text) {
-        var names = [];
-        var m;
-        /* [약 정보] 섹션에서 이름: 줄 파싱 */
-        var r1 = /이름\s*[:：]\s*([^
-
-]{2,40})/g;
-        while ((m = r1.exec(text)) !== null) {
-          var n = m[1].trim().replace(/["'【】\[\]]/g,'');
-          if (n && names.indexOf(n) < 0) names.push(n);
-        }
-        /* **굵게** 패턴에서 한글 이름 추출 */
-        var r2 = /\*\*([^*]{2,30})\*\*/g;
-        while ((m = r2.exec(text)) !== null) {
-          var n2 = m[1].trim();
-          if (n2 && /[가-힣]/.test(n2) && names.indexOf(n2) < 0) names.push(n2);
-        }
-        return names.slice(0, 5);
-      }
+      function cbAddBotMsg(html) { var ca = document.getElementById('chat-area'); var row = document.createElement('div'); row.className = 'msg-row'; row.innerHTML = cbBotAv() + '<div class="bubble bot">' + html + '</div>'; ca.appendChild(row); cbScrollBot(); }
       function cbShowTyping() { var ca = document.getElementById('chat-area'); var row = document.createElement('div'); row.className = 'msg-row typing-row'; row.id = 'cb-typing'; row.innerHTML = cbBotAv() + '<div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>'; ca.appendChild(row); cbScrollBot(); }
       function cbHideTyping() { var el = document.getElementById('cb-typing'); if (el) el.remove(); }
       function cbRemoveQR() { var qr = document.getElementById('chat-qr'); if (qr) qr.remove(); }
@@ -5399,29 +5341,8 @@
           .then(function (data) {
             cbHideTyping();
             var rawResponse = data.response || '응답이 비어있어요.';
-            /* 약 이름 추출 시도 */
-            var medNames = cbExtractMedicineNames(rawResponse);
-            if (medNames.length > 0) {
-              /* 약 이름이 추출됐으면 먼저 텍스트 응답, 그 다음 이미지 카드 */
-              cbAddBotMsg(formatChatResponse(rawResponse));
-              /* 각 약 이름마다 이미지 카드 순서대로 추가 */
-              (function showNextCard(idx) {
-                if (idx >= medNames.length) {
-                  if (fromVoice) cbPlayTTS(rawResponse);
-                  return;
-                }
-                var name = medNames[idx];
-                cbFetchMedicineImage(name, function(imgUrl) {
-                  if (imgUrl) {
-                    cbAddMedicineCard(name, imgUrl, '');
-                  }
-                  showNextCard(idx + 1);
-                });
-              })(0);
-            } else {
-              cbAddBotMsg(formatChatResponse(rawResponse));
-              if (fromVoice) cbPlayTTS(rawResponse);
-            }
+            cbAddBotMsg(formatChatResponse(rawResponse));
+            if (fromVoice) cbPlayTTS(rawResponse);
           })
           .catch(function (error) {
             cbHideTyping();
@@ -5622,23 +5543,8 @@
       function cbBuildAnalysisCard(drugs) {
         drugs = Array.isArray(drugs) ? drugs : [];
         var ca = document.getElementById('chat-area');
-        var colors = ['#1D9E75', '#378ADD', '#BA7517', '#7F77DD', '#E24B4A', '#639922'];
-
-        /* 약이 없을 때 */
-        if (!drugs.length) {
-          var card0 = document.createElement('div'); card0.className = 'an-card';
-          card0.innerHTML = '<div class="an-title"><div class="an-title-ic"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5" stroke="#085041" stroke-width="1.2"/><path d="M7 4.5v3l1.5 1" stroke="#085041" stroke-width="1.2" stroke-linecap="round"/></svg></div>약봉지 분석 결과</div>'
-            + '<div style="padding:14px 4px;color:#667;font-size:13px;line-height:1.6;">사진에서 약 이름을 찾지 못했어요. 더 선명한 약봉지 사진으로 다시 시도해 주세요.</div>'
-            + '<div class="an-actions"><button class="an-btn" id="an-alarm-btn">복약 알람 설정</button><button class="an-btn pri" id="an-exp-btn">유통기한 알람</button></div>';
-          var r0 = document.createElement('div'); r0.className = 'msg-row'; r0.innerHTML = cbBotAv(); r0.appendChild(card0); ca.appendChild(r0);
-          card0.querySelector('#an-alarm-btn').addEventListener('click', function () { cbOpenAlarmPopupFromDrugs([]); });
-          card0.querySelector('#an-exp-btn').addEventListener('click', function () { cbOpenExpiryPopupFromDrugs([]); });
-          cbScrollBot();
-          return;
-        }
-
-        /* 요약 카드 먼저 */
         var card = document.createElement('div'); card.className = 'an-card';
+        var colors = ['#1D9E75', '#378ADD', '#BA7517', '#7F77DD', '#E24B4A', '#639922'];
         var rows = drugs.map(function (drug, idx) {
           var name = cbEsc(drug.name || '이름을 확인하지 못한 약');
           var details = [
@@ -5650,7 +5556,9 @@
           if (!details) details = '복약 정보는 직접 확인해 주세요.';
           return '<div class="an-drug-row"><div class="an-dot" style="background:' + colors[idx % colors.length] + ';"></div><div class="an-drug-info"><h4>' + name + '</h4><p>' + details + '</p></div></div>';
         }).join('');
-
+        if (!rows) {
+          rows = '<div style="padding:14px 4px;color:#667;font-size:13px;line-height:1.6;">사진에서 약 이름을 찾지 못했어요. 더 선명한 약봉지 사진으로 다시 시도해 주세요.</div>';
+        }
         card.innerHTML = '<div class="an-title"><div class="an-title-ic"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5" stroke="#085041" stroke-width="1.2"/><path d="M7 4.5v3l1.5 1" stroke="#085041" stroke-width="1.2" stroke-linecap="round"/></svg></div>약봉지 분석 결과</div>'
           + rows
           + '<div class="an-actions"><button class="an-btn" id="an-alarm-btn">복약 알람 설정</button><button class="an-btn pri" id="an-exp-btn">유통기한 알람</button></div>';
@@ -5658,31 +5566,6 @@
         card.querySelector('#an-alarm-btn').addEventListener('click', function () { cbOpenAlarmPopupFromDrugs(drugs); });
         card.querySelector('#an-exp-btn').addEventListener('click', function () { cbOpenExpiryPopupFromDrugs(drugs); });
         cbScrollBot();
-
-        /* 약마다 이미지 + 상세 설명 카드 순서대로 추가 */
-        cbAddBotMsg('<p style="font-size:12px;color:#888;margin:0;">각 약의 상세 정보를 불러오고 있어요...</p>');
-        (function showDrugCard(idx) {
-          if (idx >= drugs.length) return;
-          var drug = drugs[idx];
-          var drugName = drug.name || '';
-          if (!drugName) { showDrugCard(idx + 1); return; }
-          var color = colors[idx % colors.length];
-          var details = [
-            cbKoDrugValue(drug.dose),
-            cbKoDrugValue(drug.meal),
-            cbKoDrugValue(drug.gap),
-          ].filter(Boolean).join(' · ') || '복약 정보는 직접 확인해 주세요.';
-          var descHtml = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">'
-            + (details ? '<span style="font-size:11px;padding:2px 8px;border-radius:8px;background:' + color + '18;color:' + color + ';border:1px solid ' + color + '33;">' + cbEsc(details) + '</span>' : '')
-            + '</div>';
-          if (Array.isArray(drug.times) && drug.times.length) {
-            descHtml += '<div style="font-size:12px;color:#555;margin-top:4px;">복용 시간: ' + cbEsc(drug.times.join(', ')) + '</div>';
-          }
-          cbFetchMedicineImage(drugName, function(imgUrl) {
-            cbAddMedicineCard(drugName, imgUrl, descHtml);
-            showDrugCard(idx + 1);
-          });
-        })(0);
       }
       function cbBuildAlarmConfirm(drafts) {
         drafts = cbOcrDrugDrafts(drafts);

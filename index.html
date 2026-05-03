@@ -5753,7 +5753,11 @@
 
       function cbSaveAlarmDrafts(drafts) {
         drafts = cbOcrDrugDrafts(drafts);
-        drafts.forEach(function (drug) {
+        if (!drafts.length) return;
+        var total = drafts.length;
+        var saved = 0;
+
+        function doSave(drug, imgUrl) {
           alarms.push({
             id: nextId++,
             name: drug.name,
@@ -5763,13 +5767,28 @@
             gap: drug.gap,
             persons: drug.persons || [0],
             memo: drug.memo || '',
-            imageUrl: drug.imageUrl || '',
+            imageUrl: imgUrl || '',
             color: COLORS[colorIdx++ % COLORS.length],
             enabled: true
           });
+          saved++;
+          if (saved === total) {
+            renderAlarmCalendar(); renderAlarmList(); updateAlarmSummary(); updateMypageStats(); renderTodayDoseBanner();
+            showToast(total + '개 복약 알람이 저장되었습니다');
+          }
+        }
+
+        drafts.forEach(function (drug) {
+          if (drug.imageUrl) {
+            doSave(drug, drug.imageUrl);
+          } else {
+            /* 이미지 없으면 medicine-image API로 가져오기 */
+            fetch(API_BASE_URL + '/api/medicine-image?name=' + encodeURIComponent(drug.name))
+              .then(function(r){ return r.ok ? r.json() : null; })
+              .then(function(data){ doSave(drug, data && data.image_url ? data.image_url : ''); })
+              .catch(function(){ doSave(drug, ''); });
+          }
         });
-        renderAlarmCalendar(); renderAlarmList(); updateAlarmSummary(); updateMypageStats(); renderTodayDoseBanner();
-        showToast(drafts.length + '개 복약 알람이 저장되었습니다');
       }
 
       function cbBuildAnalysisCard(drugs) {
@@ -5827,20 +5846,20 @@
         /* 페이지 레이블 */
         var labelHtml = drugs.length > 1 ? '<div class="an-page-label" id="' + cardId + '-lbl">1 / ' + drugs.length + '</div>' : '';
 
-        /* 이전/다음 버튼은 슬라이더 밖, 좌우에 배치 */
+        /* 이전/다음 버튼은 하단에 별도로 배치 */
         var navHtml = drugs.length > 1
-          ? '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
-            + '<button id="' + cardId + '-prev" class="an-nav-btn">&#8249;</button>'
-            + '<div style="flex:1;overflow:hidden;" id="' + cardId + '-viewport">'
+          ? '<div style="overflow:hidden;margin-bottom:4px;">'
             + '<div class="an-slider" id="' + cardId + '-slider">' + slidesHtml + '</div>'
             + '</div>'
+            + '<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:4px;">'
+            + '<button id="' + cardId + '-prev" class="an-nav-btn">&#8249;</button>'
+            + dotsHtml
             + '<button id="' + cardId + '-next" class="an-nav-btn">&#8250;</button>'
             + '</div>'
           : '<div style="overflow:hidden;margin-bottom:8px;">' + slidesHtml + '</div>';
 
         card.innerHTML = '<div class="an-title"><div class="an-title-ic"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5" stroke="#085041" stroke-width="1.2"/><path d="M7 4.5v3l1.5 1" stroke="#085041" stroke-width="1.2" stroke-linecap="round"/></svg></div>약봉지 분석 결과</div>'
           + navHtml
-          + dotsHtml
           + labelHtml
           + '<div class="an-actions"><button class="an-btn" id="' + cardId + '-alarm">복약 알람 설정</button><button class="an-btn pri" id="' + cardId + '-exp">유통기한 알람</button></div>';
 
@@ -5888,7 +5907,7 @@
                 if (wrap) {
                   wrap.innerHTML = '<img src="' + data.image_url + '" alt="' + cbEsc(name)
                     + '" style="width:100%;height:100%;object-fit:contain;padding:6px;"'
-                    + ' onerror="this.parentElement.innerHTML=\'<div style=&quot;width:14px;height:14px;border-radius:50%;background:#ccc;&quot;></div>\'">';
+                    + ' onerror="this.style.display=\'none\'">';
                 }
                 drug.image_url = data.image_url;
                 drug.imageUrl = data.image_url;
@@ -5906,21 +5925,26 @@
               var descEl = document.getElementById(cardId + '-desc-' + idx);
               if (!descEl) return;
               if (data && data.response) {
+                var resp = data.response;
                 /* DB에서 못 찾은 경우 안내 메시지 */
-                var isNotFound = data.response.indexOf('찾지 못했어요') >= 0
-                  || data.response.indexOf('찾을 수 없어요') >= 0
-                  || data.response.indexOf('정보가 없어요') >= 0
-                  || !data.medicine;
+                var isNotFound = !data.medicine
+                  || resp.indexOf('찾지 못했') >= 0
+                  || resp.indexOf('찾을 수 없') >= 0
+                  || resp.indexOf('정보가 없') >= 0
+                  || resp.indexOf('정보를 DB에서') >= 0
+                  || resp.indexOf('확인하지 못했') >= 0
+                  || resp.indexOf('정확히 입력') >= 0;
                 if (isNotFound) {
-                  descEl.innerHTML = '<div style="color:#999;font-size:12px;text-align:center;padding:6px 0;line-height:1.6;">'
+                  descEl.innerHTML = '<div style="color:#999;font-size:12px;text-align:center;padding:10px 4px;line-height:1.7;">'
                     + '해당 약 정보를 정확히 확인하지 못했어요.<br>약 이름이나 제품명을 다시 확인해주세요.</div>';
                 } else {
                   descEl.style.color = '#333';
                   descEl.style.textAlign = 'left';
-                  descEl.innerHTML = '<div style="font-size:12px;color:#333;line-height:1.7;">' + formatChatResponse(data.response) + '</div>';
+                  descEl.innerHTML = '<div style="font-size:12px;color:#333;line-height:1.7;">' + formatChatResponse(resp) + '</div>';
                 }
               } else {
-                descEl.innerHTML = '<div style="color:#aaa;font-size:12px;text-align:center;padding:6px 0;">설명을 불러오지 못했어요.</div>';
+                descEl.innerHTML = '<div style="color:#999;font-size:12px;text-align:center;padding:10px 4px;line-height:1.7;">'
+                  + '해당 약 정보를 정확히 확인하지 못했어요.<br>약 이름이나 제품명을 다시 확인해주세요.</div>';
               }
               cbScrollBot();
             })

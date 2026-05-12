@@ -3479,6 +3479,41 @@
       font-size: 16px;
     }
 
+    /* 챗봇 답변 — 큰 글씨 모드 보정 (인라인 스타일을 이기기 위해 !important) */
+    .large .cb-med-name {
+      font-size: 19px !important;
+      line-height: 1.5 !important;
+    }
+
+    .large .cb-sec-label {
+      font-size: 15px !important;
+    }
+
+    .large .cb-sec-body {
+      font-size: 17px !important;
+      line-height: 1.6 !important;
+    }
+
+    .large .cb-hint-sm {
+      font-size: 15px !important;
+    }
+
+    .large .an-slide-name {
+      font-size: 18px !important;
+    }
+
+    .large .an-slide-sub {
+      font-size: 15px !important;
+    }
+
+    .large .an-slide-desc,
+    .large .an-slide-loaded,
+    .large .an-slide-notfound,
+    .large .an-slide-error {
+      font-size: 16px !important;
+      line-height: 1.7 !important;
+    }
+
     .large .chat-qr-btn {
       font-size: 14px;
       padding: 8px 16px;
@@ -5431,11 +5466,11 @@
         row.className = 'msg-row';
         var header = '';
         if (imageUrl) {
-          header = '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;max-width:100%;overflow:hidden;">'
+          header = '<div class="cb-med-header" style="display:flex;align-items:center;gap:12px;margin-bottom:12px;max-width:100%;overflow:hidden;">'
             + '<div style="width:180px;max-width:48%;height:100px;border-radius:12px;border:1px solid rgba(29,158,117,0.25);background:#f8fbfa;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
             + '<img src="' + imageUrl + '" alt="' + cbEsc(name) + '" style="width:100%;height:100%;object-fit:contain;padding:5px;" onerror="this.parentElement.style.display=\'none\'">'
             + '</div>'
-            + '<strong style="font-size:15px;line-height:1.45;color:#10231d;min-width:0;flex:1;white-space:normal;overflow-wrap:anywhere;word-break:break-word;">' + cbEsc(name) + '</strong>'
+            + '<strong class="cb-med-name" style="font-size:15px;line-height:1.45;color:#10231d;min-width:0;flex:1;white-space:normal;overflow-wrap:anywhere;word-break:break-word;">' + cbEsc(name) + '</strong>'
             + '</div>';
         }
         row.innerHTML = cbBotAv()
@@ -5531,7 +5566,7 @@
           .catch(function (error) {
             cbHideTyping();
             console.error('챗봇 API 오류:', error);
-            cbAddBotMsg('<p>답변을 가져오지 못했어요.</p><p style="font-size:12px;color:#888;">서버 연결을 확인해주세요.</p>');
+            cbAddBotMsg('<p>답변을 가져오지 못했어요.</p><p class="cb-hint-sm" style="font-size:12px;color:#888;">서버 연결을 확인해주세요.</p>');
           });
       }
 
@@ -5844,11 +5879,11 @@
             + '<div style="width:14px;height:14px;border-radius:50%;background:' + color + ';"></div>'
             + '</div>'
             /* 약 이름 + 복용 정보 */
-            + '<div style="font-size:14px;font-weight:600;color:#111;text-align:center;margin-bottom:4px;">' + safeName + '</div>'
-            + '<div style="font-size:11px;color:#888;text-align:center;margin-bottom:10px;">' + details + '</div>'
+            + '<div class="an-slide-name" style="font-size:14px;font-weight:600;color:#111;text-align:center;margin-bottom:4px;">' + safeName + '</div>'
+            + '<div class="an-slide-sub" style="font-size:11px;color:#888;text-align:center;margin-bottom:10px;">' + details + '</div>'
             + '<div style="height:1px;background:rgba(0,0,0,0.06);margin-bottom:10px;"></div>'
             /* 설명 영역 */
-            + '<div id="' + cardId + '-desc-' + idx + '" style="font-size:12px;color:#aaa;text-align:center;padding:6px 0;">설명 불러오는 중...</div>'
+            + '<div id="' + cardId + '-desc-' + idx + '" class="an-slide-desc" style="font-size:12px;color:#aaa;text-align:center;padding:6px 0;">설명 불러오는 중...</div>'
             + '</div>';
         }).join('');
 
@@ -5949,22 +5984,22 @@
                   || resp.indexOf('확인하지 못했') >= 0
                   || resp.indexOf('정확히 입력') >= 0;
                 if (isNotFound) {
-                  descEl.innerHTML = '<div style="color:#999;font-size:12px;text-align:center;padding:10px 4px;line-height:1.7;">'
+                  descEl.innerHTML = '<div class="an-slide-notfound" style="color:#999;font-size:12px;text-align:center;padding:10px 4px;line-height:1.7;">'
                     + '해당 약 정보를 정확히 확인하지 못했어요.<br>약 이름이나 제품명을 다시 확인해주세요.</div>';
                 } else {
                   descEl.style.color = '#333';
                   descEl.style.textAlign = 'left';
-                  descEl.innerHTML = '<div style="font-size:12px;color:#333;line-height:1.7;">' + formatChatResponse(resp) + '</div>';
+                  descEl.innerHTML = '<div class="an-slide-loaded" style="font-size:12px;color:#333;line-height:1.7;">' + formatChatResponse(resp) + '</div>';
                 }
               } else {
-                descEl.innerHTML = '<div style="color:#999;font-size:12px;text-align:center;padding:10px 4px;line-height:1.7;">'
+                descEl.innerHTML = '<div class="an-slide-notfound" style="color:#999;font-size:12px;text-align:center;padding:10px 4px;line-height:1.7;">'
                   + '해당 약 정보를 정확히 확인하지 못했어요.<br>약 이름이나 제품명을 다시 확인해주세요.</div>';
               }
               cbScrollBot();
             })
             .catch(function(){
               var descEl = document.getElementById(cardId + '-desc-' + idx);
-              if (descEl) descEl.innerHTML = '<div style="color:#aaa;font-size:12px;text-align:center;padding:6px 0;">설명을 불러오지 못했어요.</div>';
+              if (descEl) descEl.innerHTML = '<div class="an-slide-error" style="color:#aaa;font-size:12px;text-align:center;padding:6px 0;">설명을 불러오지 못했어요.</div>';
             });
         });
       }
@@ -6039,9 +6074,9 @@
             var borderColor = header.indexOf('약 정보') >= 0 ? '#9FE1CB' : '#e0e0e0';
             var titleColor = header.indexOf('약 정보') >= 0 ? '#085041' : '#555';
 
-            html += '<div style="background:' + bgColor + ';border:1px solid ' + borderColor + ';border-radius:10px;padding:10px 12px;margin-bottom:8px;">'
-              + '<div style="font-size:11px;font-weight:600;color:' + titleColor + ';margin-bottom:6px;">' + esc(header) + '</div>'
-              + '<div style="font-size:13px;color:#333;line-height:1.5;">' + formattedContent + '</div>'
+            html += '<div class="cb-sec-card" style="background:' + bgColor + ';border:1px solid ' + borderColor + ';border-radius:10px;padding:10px 12px;margin-bottom:8px;">'
+              + '<div class="cb-sec-label" style="font-size:11px;font-weight:600;color:' + titleColor + ';margin-bottom:6px;">' + esc(header) + '</div>'
+              + '<div class="cb-sec-body" style="font-size:13px;color:#333;line-height:1.5;">' + formattedContent + '</div>'
               + '</div>';
           }
           return html;
@@ -6093,7 +6128,7 @@
           .catch(function (error) {
             cbHideTyping();
             console.error('OCR API 에러:', error);
-            cbAddBotMsg('<p>약봉지 사진을 분석하지 못했어요.</p><p style="font-size:12px;color:#888;">' + cbEsc(error.message || 'OCR 서버 설정을 확인해 주세요.') + '</p>');
+            cbAddBotMsg('<p>약봉지 사진을 분석하지 못했어요.</p><p class="cb-hint-sm" style="font-size:12px;color:#888;">' + cbEsc(error.message || 'OCR 서버 설정을 확인해 주세요.') + '</p>');
           });
       }
       function cbOpenPop(id) { document.getElementById(id).classList.add('show'); }
@@ -6266,7 +6301,7 @@
           .catch(function (error) {
             cbHideTyping();
             console.error('STT API 에러:', error);
-            cbAddBotMsg('<p>음성을 인식하지 못했어요.</p><p style="font-size:12px;color:#888;">' + cbEsc(error.message || '마이크 권한과 Google STT 설정을 확인해주세요.') + '</p>');
+            cbAddBotMsg('<p>음성을 인식하지 못했어요.</p><p class="cb-hint-sm" style="font-size:12px;color:#888;">' + cbEsc(error.message || '마이크 권한과 Google STT 설정을 확인해주세요.') + '</p>');
           });
       }
 

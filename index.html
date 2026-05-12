@@ -3514,6 +3514,36 @@
       line-height: 1.7 !important;
     }
 
+    /* 동일 성분 약 리스트 — 큰 글씨 모드 */
+    .large .cb-med-list-intro,
+    .large .cb-med-list-hint {
+      font-size: 17px !important;
+      line-height: 1.55 !important;
+    }
+
+    .large .cb-med-list-name {
+      font-size: 17px !important;
+      line-height: 1.4 !important;
+    }
+
+    .large .cb-med-list-company {
+      font-size: 14px !important;
+    }
+
+    .large .cb-med-list-arrow {
+      font-size: 24px !important;
+    }
+
+    /* 일반 모드에서도 호버 효과는 살짝 */
+    .cb-med-list-item:hover {
+      border-color: #1D9E75 !important;
+      background: #f8fbfa !important;
+    }
+
+    .cb-med-list-item:active {
+      transform: scale(0.985);
+    }
+
     .large .chat-qr-btn {
       font-size: 14px;
       padding: 8px 16px;
@@ -5417,6 +5447,97 @@
       var cbOcrDrugsForAlarm = [];
       var cbOcrDrugAlarmIdx = 0;
       var cbLastMedicine = null;
+
+      /* ══════════════════════════════════════════════════════════════
+         동일 성분 약 리스트 — 백엔드 /api/medicines-by-ingredient 연동
+         백엔드는 검색어를 받아 다음 형식으로 응답함:
+           { ingredient, medicines: [{item_seq, name, image_url, company, ingredient}], query, source }
+         medicines가 빈 배열이면 동일 성분 약이 1개 이하 또는 매칭 실패 → 일반 흐름으로 진행
+      ══════════════════════════════════════════════════════════════ */
+
+      /**
+       * 백엔드에서 동일 성분 약 그룹을 조회.
+       * @param {string} query 검색어 (약 이름 또는 성분명)
+       * @returns {Promise<{ingredient: string, medicines: Array} | null>}
+       *          매칭이 없거나 약이 1개 이하이면 null
+       */
+      function cbLookupIngredientGroup(query) {
+        if (!query || !query.trim()) return Promise.resolve(null);
+        var url = API_BASE_URL + '/api/medicines-by-ingredient?query=' + encodeURIComponent(query.trim());
+        return fetch(url)
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            if (!data) return null;
+            if (!data.medicines || data.medicines.length < 2) return null;
+            return {
+              ingredient: data.ingredient || '',
+              medicines: data.medicines
+            };
+          })
+          .catch(function (err) {
+            console.warn('동일 성분 약 조회 실패:', err);
+            return null;
+          });
+      }
+
+      /**
+       * 동일 성분 약 리스트를 챗봇 말풍선으로 추가.
+       * 각 항목을 누르면 그 약 이름으로 일반 챗봇 검색을 실행함.
+       */
+      function cbAddMedicineListCard(group) {
+        var ca = document.getElementById('chat-area');
+        var row = document.createElement('div');
+        row.className = 'msg-row';
+        var listId = 'cb-med-list-' + Date.now();
+
+        var itemsHtml = group.medicines.map(function (m, idx) {
+          var safeName = cbEsc(m.name);
+          var safeCompany = cbEsc(m.company || '');
+          var imgHtml = m.image_url
+            ? '<img src="' + m.image_url + '" alt="" style="width:100%;height:100%;object-fit:contain;padding:4px;" onerror="this.style.display=\'none\'">'
+            : '<div style="width:18px;height:18px;border-radius:50%;background:#9FE1CB;"></div>';
+          return '<button class="cb-med-list-item" data-name="' + safeName + '" data-list="' + listId + '" style="width:100%;display:flex;align-items:center;gap:12px;padding:10px;background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;cursor:pointer;font-family:inherit;text-align:left;transition:border-color 0.15s,background 0.15s;">'
+            + '<div style="width:64px;height:48px;border-radius:8px;background:#f8fbfa;border:1px solid rgba(29,158,117,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">' + imgHtml + '</div>'
+            + '<div style="flex:1;min-width:0;">'
+            + '<div class="cb-med-list-name" style="font-size:14px;font-weight:500;color:#111;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + safeName + '</div>'
+            + (safeCompany ? '<div class="cb-med-list-company" style="font-size:12px;color:#888;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + safeCompany + '</div>' : '')
+            + '</div>'
+            + '<div class="cb-med-list-arrow" style="font-size:18px;color:#1D9E75;flex-shrink:0;">›</div>'
+            + '</button>';
+        }).join('');
+
+        row.innerHTML = cbBotAv()
+          + '<div class="bubble bot" style="max-width:92%;">'
+          + '<p class="cb-med-list-intro">' + cbEsc(group.ingredient) + ' 성분의 약이 ' + group.medicines.length + '가지 있어요.</p>'
+          + '<p class="cb-med-list-hint">자세히 알아볼 약을 선택해주세요.</p>'
+          + '<div id="' + listId + '" class="cb-med-list" style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">'
+          + itemsHtml
+          + '</div>'
+          + '</div>';
+        ca.appendChild(row);
+
+        /* 각 버튼 클릭 핸들러: 일반 챗봇 검색 흐름으로 다시 진입 */
+        var buttons = row.querySelectorAll('.cb-med-list-item');
+        buttons.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var name = btn.getAttribute('data-name');
+            /* 선택된 버튼만 살짝 강조하고 리스트는 그대로 둠 (스크롤백 시 어떤 약을 골랐는지 보이도록) */
+            buttons.forEach(function (b) {
+              b.disabled = true;
+              b.style.opacity = '0.55';
+              b.style.cursor = 'default';
+            });
+            btn.style.opacity = '1';
+            btn.style.borderColor = '#1D9E75';
+            btn.style.background = '#E1F5EE';
+            /* 일반 챗봇 검색 — 단, 다시 리스트가 뜨지 않도록 skipGroupLookup 플래그 사용 */
+            cbSendChatText(name, false, { skipGroupLookup: true });
+          });
+        });
+
+        cbScrollBot();
+      }
+      /* ══════════════════════════════════════════════════════════════ */
       var FAKE_VOICE = ['타이레놀 부작용이 뭔가요?', '혈압약 먹을 때 주의할 점이 있나요?', '소화제는 식전에 먹어야 하나요?', '이부프로펜이랑 아스피린 같이 먹어도 되나요?'];
       var BOT_QA = [
         { k: '타이레놀', r: '<p><strong>타이레놀(아세트아미노펜)</strong>은 해열·진통제예요.</p><p>두통, 발열, 치통에 쓰이며 위장 자극이 적어 공복에도 복용 가능해요. 하루 최대 4g을 넘기면 안 되고, 음주 후에는 삼가야 해요.</p>' },
@@ -5515,9 +5636,36 @@
       function cbRemoveQR() { var qr = document.getElementById('chat-qr'); if (qr) qr.remove(); }
       function cbGetResp(q) { for (var i = 0; i < BOT_QA.length; i++) { if (q.indexOf(BOT_QA[i].k) >= 0) return BOT_QA[i].r; } return '<p>정확한 답변을 드리기 어렵네요.</p><p>약 이름을 더 구체적으로 입력하거나 약봉지 사진을 올려주세요.</p>'; }
 
-      function cbSendChatText(text, fromVoice) {
+      function cbSendChatText(text, fromVoice, opts) {
         cbAddUserMsg(text);
+
+        /* 동일 성분 약 리스트 먼저 보여주기 (단, follow-up 질문이나 리스트에서 선택한 경우는 건너뜀) */
+        var skipGroup = (opts && opts.skipGroupLookup) || cbIsMedicineFollowup(text);
+
+        function proceedToChat() {
+          cbShowTyping();
+          _cbSendChatToBackend(text, fromVoice);
+        }
+
+        if (skipGroup) {
+          proceedToChat();
+          return;
+        }
+
         cbShowTyping();
+        cbLookupIngredientGroup(text).then(function (group) {
+          if (group) {
+            cbHideTyping();
+            cbAddMedicineListCard(group);
+          } else {
+            /* 매칭 없음 → 일반 챗봇 흐름 (typing은 이미 표시 중) */
+            _cbSendChatToBackend(text, fromVoice);
+          }
+        });
+      }
+
+      /* 실제 /api/chat 호출 부분을 분리 — typing 표시는 호출자가 책임 */
+      function _cbSendChatToBackend(text, fromVoice) {
         var payload = { message: text };
         if (cbIsMedicineFollowup(text)) {
           payload.context_medicine_name = cbLastMedicine.name;

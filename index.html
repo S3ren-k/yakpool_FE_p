@@ -317,6 +317,48 @@
       border-radius: 18px;
     }
 
+    /* 메인 페이지 — 큰 글씨 모드 추가 보정 */
+    .large .main-greeting-sub {
+      font-size: 17px;
+    }
+
+    .large .main-greeting-title {
+      font-size: 26px;
+    }
+
+    .large .dose-banner-title {
+      font-size: 18px;
+    }
+
+    .large .dose-badge {
+      font-size: 14px;
+      padding: 3px 10px;
+    }
+
+    .large .dose-view-all {
+      font-size: 16px;
+    }
+
+    .large .dose-empty-msg {
+      font-size: 16px !important;
+    }
+
+    .large .dose-item-name {
+      font-size: 17px !important;
+    }
+
+    .large .dose-item-sub {
+      font-size: 14px !important;
+    }
+
+    .large .notice-title {
+      font-size: 16px;
+    }
+
+    .large .notice-desc {
+      font-size: 14px;
+    }
+
     .large .mbb-title {
       font-size: clamp(18px, 2.6dvh, 24px);
     }
@@ -3589,25 +3631,6 @@
           <div class="main-btn-grid">
 
             <!-- 챗봇 -->
-            <!-- 약 빠른 검색 카드 -->
-            <div
-              style="margin-bottom:14px;background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:14px;padding:14px 16px;">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <circle cx="8" cy="8" r="5.5" stroke="#1D9E75" stroke-width="1.8" />
-                  <path d="M12 12l4 4" stroke="#1D9E75" stroke-width="1.8" stroke-linecap="round" />
-                </svg>
-                <span style="font-size:14px;font-weight:600;color:#111;">약 빠르게 검색하기</span>
-              </div>
-              <div style="display:flex;gap:8px;">
-                <input id="quick-search-input" type="text" placeholder="예: 타이레놀, 부루펜"
-                  style="flex:1;padding:10px 12px;border:1px solid #e0e0e0;border-radius:10px;font-size:13px;font-family:inherit;outline:none;background:#f7f7f5;"
-                  onkeydown="if(event.key==='Enter')quickSearchSubmit();">
-                <button onclick="quickSearchSubmit()"
-                  style="padding:10px 16px;background:#1D9E75;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">검색</button>
-              </div>
-            </div>
-
             <button id="main-chatbot-btn" class="main-big-btn mbb-full" style="background:#1D9E75;">
               <div class="mbb-icon" style="background:rgba(255,255,255,0.2);">
                 <svg width="28" height="28" viewBox="0 0 30 30" fill="none">
@@ -4997,7 +5020,7 @@
         if (!list) return;
         if (badge) badge.textContent = al.length + '종';
         if (al.length === 0) {
-          list.innerHTML = '<div style="font-size:13px;color:#888;text-align:center;padding:8px 0;">오늘 복용할 약이 없어요</div>';
+          list.innerHTML = '<div class="dose-empty-msg" style="font-size:13px;color:#888;text-align:center;padding:8px 0;">오늘 복용할 약이 없어요</div>';
           return;
         }
         list.innerHTML = al.map(function (a) {
@@ -5007,11 +5030,11 @@
           } else {
             pillSvg = '<svg width="26" height="18" viewBox="0 0 26 18" fill="none">'            + '<ellipse cx="13" cy="9" rx="11" ry="6" fill="' + a.color + '" opacity="0.2"/>'            + '<ellipse cx="13" cy="9" rx="7" ry="4" fill="' + a.color + '" opacity="0.45"/>'            + '<ellipse cx="13" cy="9" rx="3.5" ry="2" fill="' + a.color + '"/>'            + '<line x1="13" y1="3.5" x2="13" y2="14.5" stroke="' + a.color + '" stroke-width="0.8" opacity="0.4"/>'            + '</svg>';
           }
-          return '<div style="display:flex;align-items:center;gap:10px;">'
+          return '<div class="dose-item" style="display:flex;align-items:center;gap:10px;">'
             + '<div style="width:86px;height:46px;border-radius:10px;background:' + a.color + '12;border:1px solid ' + a.color + '30;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">' + pillSvg + '</div>'
             + '<div style="flex:1;">'
-            + '<div style="font-size:13px;font-weight:500;color:#111;">' + a.name + '</div>'
-            + '<div style="font-size:11px;color:#888;margin-top:2px;">' + a.meal + ' · ' + a.times.join(', ') + '</div>'
+            + '<div class="dose-item-name" style="font-size:13px;font-weight:500;color:#111;">' + a.name + '</div>'
+            + '<div class="dose-item-sub" style="font-size:11px;color:#888;margin-top:2px;">' + a.meal + ' · ' + a.times.join(', ') + '</div>'
             + '</div>'
             + '<div style="width:20px;height:20px;border-radius:50%;border:1.5px solid #ddd;flex-shrink:0;"></div>'
             + '</div>';
@@ -5337,16 +5360,7 @@
       window.initMapPage = initMapPage;
 
       /* 메인 화면의 약 빠른 검색 -> 챗봇으로 보내기 */
-      var pendingChatbotQuery = null;  // 챗봇 페이지가 열렸을 때 자동 전송할 검색어
-      function quickSearchSubmit() {
-        var input = document.getElementById('quick-search-input');
-        var query = input.value.trim();
-        if (!query) return;
-        input.value = '';
-        pendingChatbotQuery = query;
-        goPage('chatbot');  // 챗봇 페이지로 이동
-      }
-      window.quickSearchSubmit = quickSearchSubmit;
+      var pendingChatbotQuery = null;  // (보존) 다른 경로에서 챗봇 자동 질의용으로 쓸 수 있음
       function updateMypageStats() { var enabled = alarms.filter(function (a) { return a.enabled; }).length; document.getElementById("mp-med-count").textContent = enabled; document.getElementById("mp-drug-label").textContent = "현재 " + enabled + "종 등록됨"; }
       /* ── INIT ── */
       renderTodayDoseBanner();

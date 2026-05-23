@@ -8,6 +8,218 @@
 </head>
 
 <body>
+
+  <!-- ═══════════════════════════════════════════════════
+       AUTH SCREENS (splash → onboarding → login → signup)
+  ═══════════════════════════════════════════════════ -->
+
+  <!-- SPLASH -->
+  <div class="auth-screen active" id="auth-splash">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;">
+      <div class="splash-icon">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <rect x="10" y="8" width="24" height="28" rx="5" stroke="#fff" stroke-width="2"/>
+          <path d="M17 16h10M17 22h10M17 28h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="33" cy="33" r="8" fill="#1D9E75" stroke="#fff" stroke-width="2"/>
+          <path d="M29.5 33h7M33 29.5v7" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="splash-name">약풀</div>
+      <div class="splash-tagline">의약품 정보를 쉽고 안전하게</div>
+      <div class="splash-dots">
+        <div class="splash-dot active" id="sd0"></div>
+        <div class="splash-dot" id="sd1"></div>
+        <div class="splash-dot" id="sd2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ONBOARDING -->
+  <div class="auth-screen" id="auth-onboarding">
+    <div class="ob-slides">
+      <div class="ob-slide active" id="ob0">
+        <div class="ob-illus" style="background:#E1F5EE;">
+          <svg width="90" height="90" viewBox="0 0 90 90" fill="none">
+            <rect x="18" y="14" width="54" height="62" rx="10" fill="#9FE1CB"/>
+            <rect x="26" y="26" width="38" height="6" rx="3" fill="#1D9E75"/>
+            <rect x="26" y="38" width="28" height="6" rx="3" fill="#1D9E75" opacity="0.6"/>
+            <rect x="26" y="50" width="34" height="6" rx="3" fill="#1D9E75" opacity="0.4"/>
+            <circle cx="65" cy="62" r="16" fill="#1D9E75"/>
+            <path d="M57 62l5 5 9-9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="ob-title">복잡한 약 설명,<br>이제 쉽게 이해해요</div>
+        <div class="ob-desc">어려운 의학 용어 없이 누구나 이해할 수 있는 쉬운 말로 약 정보를 알려드려요.</div>
+      </div>
+      <div class="ob-slide" id="ob1">
+        <div class="ob-illus" style="background:#E6F1FB;">
+          <svg width="90" height="90" viewBox="0 0 90 90" fill="none">
+            <circle cx="45" cy="45" r="28" fill="#B5D4F4"/>
+            <path d="M45 25v20l12 7" stroke="#185FA5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="45" cy="45" r="4" fill="#185FA5"/>
+          </svg>
+        </div>
+        <div class="ob-title">복용 시간을<br>절대 놓치지 마세요</div>
+        <div class="ob-desc">약 복용 시간과 방법을 알람으로 알려드려요. 보호자도 원격으로 함께 챙길 수 있어요.</div>
+      </div>
+      <div class="ob-slide" id="ob2">
+        <div class="ob-illus" style="background:#FAEEDA;">
+          <svg width="90" height="90" viewBox="0 0 90 90" fill="none">
+            <rect x="15" y="30" width="60" height="40" rx="8" fill="#FAC775"/>
+            <path d="M15 42h60" stroke="#EF9F27" stroke-width="1.5"/>
+            <rect x="25" y="52" width="16" height="10" rx="3" fill="#EF9F27"/>
+            <circle cx="45" cy="22" r="10" fill="#EF9F27"/>
+          </svg>
+        </div>
+        <div class="ob-title">약봉지 사진 하나로<br>모든 정보를 한 번에</div>
+        <div class="ob-desc">약봉지 사진을 찍으면 약 정보 분석부터 복용 알람, 유통기한 관리까지 자동으로 설정해드려요.</div>
+      </div>
+    </div>
+    <div class="ob-footer">
+      <div class="ob-dots">
+        <div class="ob-dot active" id="odd0"></div>
+        <div class="ob-dot" id="odd1"></div>
+        <div class="ob-dot" id="odd2"></div>
+      </div>
+      <button class="auth-btn-primary" id="ob-next-btn">다음</button>
+      <button class="auth-btn-ghost" id="ob-skip-btn">건너뛰기</button>
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="auth-screen" id="auth-login">
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg width="22" height="22" viewBox="0 0 44 44" fill="none">
+          <rect x="10" y="8" width="24" height="28" rx="5" stroke="#fff" stroke-width="2.2"/>
+          <path d="M17 16h10M17 22h10M17 28h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="login-logo-text">약풀</span>
+    </div>
+    <div class="login-headline">다시 오셨군요,<br>반갑습니다.</div>
+    <div class="login-sub">로그인하고 맞춤 복약 관리를 시작하세요.</div>
+    <div class="login-form">
+      <div class="auth-form-group">
+        <label>아이디</label>
+        <input type="text" id="li-username" placeholder="아이디 입력" autocomplete="username"/>
+        <span class="auth-error" id="li-id-err"></span>
+      </div>
+      <div class="auth-form-group">
+        <label>비밀번호</label>
+        <div class="pw-wrap">
+          <input type="password" id="li-pw" placeholder="비밀번호 입력" autocomplete="current-password"/>
+          <button class="pw-toggle" id="li-pw-toggle" type="button">
+            <svg id="li-eye-off" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M1 1l16 16M7.4 7.5A2 2 0 0011 10.6M3.7 3.8C2 5 1 7 1 9c0 0 2.5 6 8 6 1.7 0 3.1-.5 4.3-1.3M7 3.1C7.6 3 8.3 3 9 3c5.5 0 8 6 8 6s-.8 2-2.7 3.7" stroke="#aaa" stroke-width="1.3" stroke-linecap="round"/></svg>
+            <svg id="li-eye-on" width="18" height="18" viewBox="0 0 18 18" fill="none" style="display:none;"><path d="M1 9s2.5-6 8-6 8 6 8 6-2.5 6-8 6-8-6-8-6z" stroke="#1D9E75" stroke-width="1.3"/><circle cx="9" cy="9" r="2.5" stroke="#1D9E75" stroke-width="1.3"/></svg>
+          </button>
+        </div>
+        <span class="auth-error" id="li-pw-err"></span>
+      </div>
+      <div class="form-row">
+        <div class="remember-wrap" id="li-remember-wrap">
+          <div class="custom-cb" id="li-remember-cb"></div>
+          <span class="remember-label">로그인 상태 유지</span>
+        </div>
+      </div>
+      <button class="auth-btn-primary" id="li-login-btn" type="button">
+        <div class="login-spinner" id="li-spinner"></div>
+        <span id="li-btn-text">로그인</span>
+      </button>
+    </div>
+    <div class="auth-divider"><div class="auth-divider-line"></div><span class="auth-divider-text">또는</span><div class="auth-divider-line"></div></div>
+    <div class="social-btns">
+      <button class="social-btn" id="li-kakao-btn" type="button">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><ellipse cx="9" cy="8.5" rx="7.5" ry="6.5" fill="#FEE500"/><path d="M6 11l1.2-3.2.8 2 .8-2L10 11" stroke="#3C1E1E" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        카카오로 계속하기
+      </button>
+    </div>
+    <div class="login-bottom">
+      <div class="signup-row">
+        <span>아직 계정이 없으신가요?</span>
+        <button class="signup-link" id="li-go-signup" type="button">회원가입</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIGNUP -->
+  <div class="auth-screen" id="auth-signup">
+    <div class="auth-step-bar">
+      <div class="auth-step-seg active" id="su-seg1"></div>
+      <div class="auth-step-seg" id="su-seg2"></div>
+    </div>
+    <div class="auth-screen-hdr">
+      <button class="auth-back-btn" id="su-back-btn">‹</button>
+      <span class="auth-screen-title" id="su-step-title">기본 정보 입력</span>
+    </div>
+    <div class="auth-screen-sub" id="su-step-sub">약풀을 처음 사용하시는군요! 기본 정보를 입력해 주세요.</div>
+
+    <!-- step 1 -->
+    <div id="su-step1-fields" style="padding:0;">
+      <div class="auth-form-wrap">
+        <div class="auth-form-group">
+          <label>이름</label>
+          <input type="text" id="su-name" placeholder="홍길동"/>
+        </div>
+        <div class="auth-form-group">
+          <label>아이디</label>
+          <input type="text" id="su-username" placeholder="사용할 아이디 입력"/>
+          <span class="auth-error" id="su-id-err">이미 사용 중인 아이디입니다.</span>
+        </div>
+        <div class="auth-form-group">
+          <label>비밀번호</label>
+          <div class="pw-wrap">
+            <input type="password" id="su-pw" placeholder="8자 이상 입력"/>
+          </div>
+          <span class="auth-error" id="su-pw-err">비밀번호는 8자 이상이어야 해요.</span>
+        </div>
+        <div class="auth-form-group">
+          <label>비밀번호 확인</label>
+          <input type="password" id="su-pw2" placeholder="비밀번호 재입력"/>
+          <span class="auth-error" id="su-pw2-err">비밀번호가 일치하지 않아요.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- step 2 -->
+    <div id="su-step2-fields" style="display:none;">
+      <div class="auth-form-wrap">
+        <div class="auth-form-group">
+          <label>생년월일</label>
+          <input type="date" id="su-birth"/>
+        </div>
+        <div class="auth-form-group">
+          <label>전화번호</label>
+          <input type="tel" id="su-phone" placeholder="010-0000-0000"/>
+        </div>
+        <div class="auth-form-group">
+          <label>성별</label>
+          <select id="su-gender" style="width:100%;padding:14px 16px;font-size:15px;color:#111;background:#f7f7f5;border:1.5px solid #e8e8e8;border-radius:12px;font-family:inherit;outline:none;">
+            <option value="">선택 안 함</option>
+            <option value="male">남성</option>
+            <option value="female">여성</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-form-bottom">
+      <button class="auth-next-btn" id="su-next-btn">다음</button>
+    </div>
+  </div>
+
+  <!-- FORGOT PW OVERLAY -->
+  <div class="auth-overlay" id="forgot-overlay">
+    <div class="auth-overlay-sheet">
+      <div class="auth-overlay-hdr">
+        <h3>비밀번호 찾기</h3>
+        <button class="auth-overlay-close" id="forgot-close">×</button>
+      </div>
+      <p style="font-size:13px;color:#888;margin-bottom:16px;line-height:1.6;">관리자에게 문의해 주세요.</p>
+      <button class="auth-btn-primary" id="forgot-close2">확인</button>
+    </div>
+  </div>
+
   <!-- 카카오맵 SDK 로드 - autoload=false로 두면 필요할 때만 로드함 -->
   <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8378db7b1aaae9e3af34345dbe2c34d4&autoload=false"></script>
 
@@ -3679,7 +3891,7 @@
           <h2 id="hdr-title">약풀</h2>
           <p id="hdr-sub">의약품 정보를 쉽고 안전하게</p>
         </div>
-        <div class="hdr-avatar">김</div>
+        <div class="hdr-avatar" id="hdr-avatar">?</div>
       </div>
       <div class="page-scroll" id="page-scroll">
 
@@ -3688,7 +3900,7 @@
 
           <!-- 인사말 -->
           <div class="main-greeting">
-            <div class="main-greeting-sub">좋은 하루예요, 김민준 님 👋</div>
+            <div class="main-greeting-sub" id="main-greeting-sub">좋아요 👋</div>
             <div class="main-greeting-title">오늘도 건강하게<br>약 챙겨드세요 💊</div>
           </div>
 
@@ -4115,10 +4327,10 @@
         <div class="page" id="page-mypage">
           <div style="flex:1;overflow-y:auto;min-height:0;">
             <div class="profile-section">
-              <div class="mp-avatar">김</div>
+              <div class="mp-avatar" id="mp-avatar">?</div>
               <div class="profile-info">
-                <h3>김민준</h3>
-                <p>010-1234-5678 · 만 54세</p><span class="profile-badge">고혈압 · 당뇨 관리 중</span>
+                <h3 id="mp-name">-</h3>
+                <p id="mp-phone">-</p><span class="profile-badge">고혈압 · 당뇨 관리 중</span>
               </div>
             </div>
             <div class="stat-row">
@@ -4267,7 +4479,7 @@
                   <p>데이터 관리 및 보안</p>
                 </div><span class="menu-arrow">›</span>
               </div>
-              <div class="my-menu-item" onclick="showToast('로그아웃 되었습니다')">
+              <div class="my-menu-item" id="logout-btn" onclick="doLogout()">
                 <div class="menu-icon" style="background:#f5f5f5;"><svg width="18" height="18" viewBox="0 0 18 18"
                     fill="none">
                     <path d="M11 12l3-3-3-3M14 9H7M9 3H4a1 1 0 00-1 1v10a1 1 0 001 1h5" stroke="#888" stroke-width="1.3"
@@ -4350,9 +4562,9 @@
           <div class="field"><label>복용자 선택</label>
             <div class="person-list" id="f-persons">
               <div class="person-row on" data-pid="0">
-                <div class="p-avatar" style="background:#E1F5EE;color:#085041;">김</div>
+                <div class="p-avatar" id="alarm-person-avatar" style="background:#E1F5EE;color:#085041;">?</div>
                 <div style="flex:1;">
-                  <div class="p-name">김민준</div>
+                  <div class="p-name" id="alarm-person-name">-</div>
                   <div class="p-role">본인</div>
                 </div>
                 <div class="p-check"></div>
@@ -6689,6 +6901,226 @@
       setInterval(checkAlarmTrigger, 60000);
       /* 페이지 로드 직후 한 번 즉시 체크 */
       checkAlarmTrigger();
+
+
+    /* ═══════════════════════════════════════════════════
+       AUTH LOGIC
+    ═══════════════════════════════════════════════════ */
+    (function () {
+      var API_BASE = 'https://yakpool-production-2b84.up.railway.app';
+      var liPwVisible = false, liRemember = false, suStep = 1;
+
+      /* ── 유틸 ── */
+      function authShowToast(msg) {
+        var t = document.getElementById('toast');
+        if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; document.body.appendChild(t); }
+        t.textContent = msg; t.classList.add('show');
+        setTimeout(function () { t.classList.remove('show'); }, 2400);
+      }
+
+      function showAuthScreen(id) {
+        document.querySelectorAll('.auth-screen').forEach(function (s) { s.classList.remove('active'); });
+        var el = document.getElementById(id);
+        if (el) el.classList.add('active');
+      }
+
+      /* ── 사용자 정보 반영 ── */
+      function applyUserInfo(user) {
+        if (!user) return;
+        var name = user.name || user.username || '';
+        var first = name.charAt(0);
+        var phone = user.phone || '';
+
+        var el;
+        el = document.getElementById('mp-avatar');       if (el) el.textContent = first;
+        el = document.getElementById('mp-name');         if (el) el.textContent = name;
+        el = document.getElementById('mp-phone');        if (el) el.textContent = phone || '전화번호 미등록';
+        el = document.getElementById('hdr-avatar');      if (el) el.textContent = first;
+        el = document.getElementById('main-greeting-sub'); if (el) el.textContent = '좋은 하루예요, ' + name + ' 님 👋';
+        el = document.getElementById('alarm-person-name'); if (el) el.textContent = name;
+        el = document.getElementById('alarm-person-avatar'); if (el) el.textContent = first;
+      }
+
+      /* ── 로그인 상태 확인 → 앱 진입 or 스플래시 ── */
+      function checkLoginAndInit() {
+        var token = localStorage.getItem('yp_token');
+        var userStr = localStorage.getItem('yp_user');
+        if (token && userStr) {
+          try {
+            var user = JSON.parse(userStr);
+            applyUserInfo(user);
+            // 바로 앱 진입 (스플래시 없이)
+            document.querySelectorAll('.auth-screen').forEach(function (s) { s.classList.remove('active'); });
+            return;
+          } catch (e) {}
+        }
+        // 비로그인 → 스플래시 시작
+        startSplash();
+      }
+
+      /* ── SPLASH ── */
+      function startSplash() {
+        showAuthScreen('auth-splash');
+        var dots = [document.getElementById('sd0'), document.getElementById('sd1'), document.getElementById('sd2')];
+        var step = 0;
+        var iv = setInterval(function () {
+          dots[step].classList.remove('active');
+          step = (step + 1) % 3;
+          dots[step].classList.add('active');
+          if (step === 2) {
+            clearInterval(iv);
+            setTimeout(function () { showAuthScreen('auth-onboarding'); }, 600);
+          }
+        }, 700);
+      }
+
+      /* ── ONBOARDING ── */
+      var curOb = 0;
+      function goOb(n) {
+        var slides = document.querySelectorAll('.ob-slide');
+        var dots = document.querySelectorAll('.ob-dot');
+        slides[curOb].classList.remove('active'); slides[curOb].classList.add('out');
+        setTimeout(function () { slides[curOb].classList.remove('out'); }, 350);
+        curOb = n; slides[curOb].classList.add('active');
+        dots.forEach(function (d, i) { d.classList.toggle('active', i === curOb); });
+        document.getElementById('ob-next-btn').textContent = curOb === 2 ? '시작하기' : '다음';
+      }
+      document.getElementById('ob-next-btn').addEventListener('click', function () {
+        if (curOb < 2) { goOb(curOb + 1); } else { showAuthScreen('auth-login'); }
+      });
+      document.getElementById('ob-skip-btn').addEventListener('click', function () { showAuthScreen('auth-login'); });
+
+      /* ── LOGIN ── */
+      document.getElementById('li-pw-toggle').addEventListener('click', function () {
+        liPwVisible = !liPwVisible;
+        document.getElementById('li-pw').type = liPwVisible ? 'text' : 'password';
+        document.getElementById('li-eye-off').style.display = liPwVisible ? 'none' : 'block';
+        document.getElementById('li-eye-on').style.display = liPwVisible ? 'block' : 'none';
+      });
+      document.getElementById('li-remember-wrap').addEventListener('click', function () {
+        liRemember = !liRemember;
+        document.getElementById('li-remember-cb').classList.toggle('checked', liRemember);
+      });
+      document.getElementById('li-login-btn').addEventListener('click', doLogin);
+      document.getElementById('li-pw').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
+      document.getElementById('li-kakao-btn').addEventListener('click', function () { authShowToast('카카오 로그인은 준비 중이에요'); });
+      document.getElementById('li-go-signup').addEventListener('click', function () {
+        suStep = 1; updateSuStep(); showAuthScreen('auth-signup');
+      });
+
+      function doLogin() {
+        var username = document.getElementById('li-username').value.trim();
+        var pw = document.getElementById('li-pw').value;
+        document.getElementById('li-id-err').classList.remove('show');
+        document.getElementById('li-pw-err').classList.remove('show');
+        if (!username) { document.getElementById('li-id-err').textContent = '아이디를 입력해 주세요.'; document.getElementById('li-id-err').classList.add('show'); return; }
+        if (!pw || pw.length < 4) { document.getElementById('li-pw-err').textContent = '비밀번호를 입력해 주세요.'; document.getElementById('li-pw-err').classList.add('show'); return; }
+        var btn = document.getElementById('li-login-btn');
+        btn.disabled = true;
+        document.getElementById('li-spinner').style.display = 'block';
+        document.getElementById('li-btn-text').textContent = '로그인 중...';
+        function resetBtn() { btn.disabled = false; document.getElementById('li-spinner').style.display = 'none'; document.getElementById('li-btn-text').textContent = '로그인'; }
+        fetch(API_BASE + '/api/login', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: username, password: pw, keep_login: liRemember })
+        })
+        .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
+        .then(function (r) {
+          resetBtn();
+          if (r.ok && r.data.access_token) {
+            localStorage.setItem('yp_token', r.data.access_token);
+            localStorage.setItem('yp_user', JSON.stringify(r.data.user));
+            applyUserInfo(r.data.user);
+            document.querySelectorAll('.auth-screen').forEach(function (s) { s.classList.remove('active'); });
+          } else {
+            var msg = r.data.detail || '아이디 또는 비밀번호가 올바르지 않습니다.';
+            document.getElementById('li-pw-err').textContent = msg;
+            document.getElementById('li-pw-err').classList.add('show');
+          }
+        })
+        .catch(function () { resetBtn(); authShowToast('서버에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.'); });
+      }
+
+      /* ── SIGNUP ── */
+      function updateSuStep() {
+        document.getElementById('su-step1-fields').style.display = suStep === 1 ? '' : 'none';
+        document.getElementById('su-step2-fields').style.display = suStep === 2 ? '' : 'none';
+        document.getElementById('su-seg1').className = 'auth-step-seg ' + (suStep >= 1 ? 'active' : '');
+        document.getElementById('su-seg2').className = 'auth-step-seg ' + (suStep >= 2 ? 'active' : '');
+        document.getElementById('su-step-title').textContent = suStep === 1 ? '기본 정보 입력' : '추가 정보 입력';
+        document.getElementById('su-step-sub').textContent = suStep === 1 ? '약풀을 처음 사용하시는군요! 기본 정보를 입력해 주세요.' : '복약 관리에 필요한 정보예요. 나중에 마이페이지에서 수정할 수 있어요.';
+        document.getElementById('su-next-btn').textContent = suStep === 1 ? '다음' : '가입 완료';
+      }
+      document.getElementById('su-back-btn').addEventListener('click', function () {
+        if (suStep === 1) { showAuthScreen('auth-login'); } else { suStep = 1; updateSuStep(); }
+      });
+      document.getElementById('su-next-btn').addEventListener('click', function () {
+        if (suStep === 1) { doSignupStep1(); } else { doSignupStep2(); }
+      });
+
+      function doSignupStep1() {
+        var name = document.getElementById('su-name').value.trim();
+        var username = document.getElementById('su-username').value.trim();
+        var pw = document.getElementById('su-pw').value;
+        var pw2 = document.getElementById('su-pw2').value;
+        ['su-id-err','su-pw-err','su-pw2-err'].forEach(function(id){ document.getElementById(id).classList.remove('show'); });
+        if (!name) { authShowToast('이름을 입력해 주세요'); return; }
+        if (!username) { document.getElementById('su-id-err').textContent = '아이디를 입력해 주세요.'; document.getElementById('su-id-err').classList.add('show'); return; }
+        if (pw.length < 8) { document.getElementById('su-pw-err').classList.add('show'); return; }
+        if (pw !== pw2) { document.getElementById('su-pw2-err').classList.add('show'); return; }
+        fetch(API_BASE + '/api/check-username?username=' + encodeURIComponent(username))
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          if (d.available) { suStep = 2; updateSuStep(); }
+          else { document.getElementById('su-id-err').textContent = '이미 사용 중인 아이디입니다.'; document.getElementById('su-id-err').classList.add('show'); }
+        })
+        .catch(function(){ authShowToast('서버 연결 오류가 발생했어요.'); });
+      }
+
+      function doSignupStep2() {
+        var btn = document.getElementById('su-next-btn');
+        btn.disabled = true; btn.textContent = '가입 중...';
+        var payload = {
+          username: document.getElementById('su-username').value.trim(),
+          password: document.getElementById('su-pw').value,
+          password_confirm: document.getElementById('su-pw').value,
+          name: document.getElementById('su-name').value.trim(),
+          birth_date: document.getElementById('su-birth').value || '',
+          gender: document.getElementById('su-gender').value || '',
+          phone: document.getElementById('su-phone').value.trim() || ''
+        };
+        fetch(API_BASE + '/api/signup', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(function(res){ return res.json().then(function(d){ return {ok:res.ok, data:d}; }); })
+        .then(function(r){
+          btn.disabled = false; btn.textContent = '가입 완료';
+          if (r.ok) {
+            authShowToast((r.data['메시지'] || '가입 완료!'));
+            setTimeout(function(){ showAuthScreen('auth-login'); }, 1200);
+          } else {
+            authShowToast(r.data.detail || '회원가입 중 오류가 발생했어요.');
+          }
+        })
+        .catch(function(){ btn.disabled=false; btn.textContent='가입 완료'; authShowToast('서버 연결 오류가 발생했어요.'); });
+      }
+
+      /* ── LOGOUT ── */
+      window.doLogout = function () {
+        localStorage.removeItem('yp_token');
+        localStorage.removeItem('yp_user');
+        startSplash();
+      };
+
+      /* ── forgot pw ── */
+      document.getElementById('forgot-close').addEventListener('click', function(){ document.getElementById('forgot-overlay').classList.remove('show'); });
+      document.getElementById('forgot-close2').addEventListener('click', function(){ document.getElementById('forgot-overlay').classList.remove('show'); });
+
+      /* ── 진입점 ── */
+      checkLoginAndInit();
+
+    })();
 
     })();
   </script>

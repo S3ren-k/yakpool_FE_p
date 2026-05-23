@@ -7021,7 +7021,15 @@
       });
       document.getElementById('li-btn').addEventListener('click', doLogin);
       document.getElementById('li-pw').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
-      document.getElementById('li-kakao').addEventListener('click', function(){ aToast('카카오 로그인은 준비 중이에요'); });
+      document.getElementById('li-kakao').addEventListener('click', function(){
+        var KAKAO_KEY = '5832230ea366fd30f92d10578a672711';
+        var REDIRECT  = 'https://yakpool-fe-p.vercel.app/kakao/callback';
+        var url = 'https://kauth.kakao.com/oauth/authorize'
+          + '?client_id=' + KAKAO_KEY
+          + '&redirect_uri=' + encodeURIComponent(REDIRECT)
+          + '&response_type=code';
+        window.location.href = url;
+      });
       document.getElementById('li-go-signup').addEventListener('click', function(){
         suStep=1; updateSu(); showAuth('auth-signup');
       });
@@ -7121,7 +7129,46 @@
         splash();
       };
 
-      init();
+      /* ── 카카오 콜백 처리: URL에 ?code= 가 있으면 백엔드로 전달 ── */
+      function handleKakaoCallback() {
+        var params = new URLSearchParams(window.location.search);
+        var code = params.get('code');
+        if (!code) return false;
+
+        // URL에서 code 파라미터 제거 (뒤로가기 방지)
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+        // 로딩 스플래시 보여주기
+        showAuth('auth-splash');
+
+        fetch(API + '/api/kakao-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: code })
+        })
+        .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
+        .then(function(res){
+          if (res.ok && res.d.access_token) {
+            localStorage.setItem('yp_token', res.d.access_token);
+            localStorage.setItem('yp_user', JSON.stringify(res.d.user));
+            applyUser(res.d.user);
+            hideAuth();
+          } else {
+            aToast(res.d.detail || '카카오 로그인에 실패했어요.');
+            showAuth('auth-login');
+          }
+        })
+        .catch(function(){
+          aToast('서버 연결 오류가 발생했어요.');
+          showAuth('auth-login');
+        });
+        return true;
+      }
+
+      /* ── 진입점 ── */
+      if (!handleKakaoCallback()) {
+        init();
+      }
     })();
     /* ════ /AUTH LOGIC ════ */
 
